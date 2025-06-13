@@ -140,7 +140,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: stanoz03/tdo_lab14:latest
+          tags: stanoz03/kol2:latest
           build-args: NODE_VERSION=18
   notify:
     if: always()
