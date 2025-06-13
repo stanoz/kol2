@@ -40,34 +40,6 @@ jobs:
       - name: Set success
         id: test
         run: echo "success=true" >> $GITHUB_OUTPUT
-#  integration-tests:
-#    runs-on: ubuntu-latest
-#    env:
-#      NODE_ENV: integration
-#      NODE_VERSION: 18
-#    environment: test
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Set up Docker Compose
-#        run: docker compose up -d
-#
-#      - name: Run unit tests inside container
-#        run: |
-#          docker compose exec -T app npm run test:integration
-#
-#      - name: Ensure coverage directory exists
-#        run: mkdir -p ./coverage
-#
-#      - name: Copy coverage report from container
-#        run: |
-#            docker cp $(docker compose ps -q app):/app/coverage/lcov-report ./coverage/lcov-report
-#      - name: Upload coverage report
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: lcov-report
-#          path: ./coverage/lcov-report
   build-docker-image:
     needs:
       - lint
@@ -91,25 +63,9 @@ jobs:
     needs: build-docker-image
     environment:
       name: production
-#    outputs:
-#      approval:  ${{ steps.deploy-app.outputs.approval }}
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-#      - name: Set default approval to false
-#        id: set-default
-#        run: echo "approval=false" >> $GITHUB_OUTPUT
-#      - name: Await manual approval
-#        uses: trstringer/manual-approval@v1
-#        with:
-#            secret: ${{ github.TOKEN }}
-#            approvers: stanoz
-#            minimum-approvals: 1
-#            issue-title: "Manual Approval Required"
-#            issue-body: "Please approve or deny the deployment."
-#      - name: Set approval to true
-#        id: set-approval
-#        run: echo "approval=true" >> $GITHUB_OUTPUT
       - name: Get code
         uses: actions/checkout@v4
       - name: Deploy process
@@ -124,7 +80,6 @@ jobs:
   docker-hub-push:
     needs:
       - deploy-app
-#    if: needs.deploy-app.outputs.approval == 'true'
     runs-on: ubuntu-latest
     environment: test
     steps:
