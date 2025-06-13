@@ -79,7 +79,7 @@ jobs:
       - name:  Load and cache dependencies
         uses: ./.github/actions/cached-deps
       - name: Build image
-        run: docker image -t stanoz03/kol2:latest .
+        run: docker build -t stanoz03/kol2:latest .
       - name: Save Docker image as artifact
         run: docker save stanoz03/kol2:latest -o app-image.tar
       - name: Upload image
@@ -89,25 +89,27 @@ jobs:
           name: app-image
   deploy-app:
     needs: build-docker-image
-    outputs:
-      approval:  ${{ steps.deploy-app.outputs.approval }}
+    environment:
+      name: production
+#    outputs:
+#      approval:  ${{ steps.deploy-app.outputs.approval }}
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Set default approval to false
-        id: set-default
-        run: echo "approval=false" >> $GITHUB_OUTPUT
-      - name: Await manual approval
-        uses: trstringer/manual-approval@v1
-        with:
-            secret: ${{ github.TOKEN }}
-            approvers: stanoz
-            minimum-approvals: 1
-            issue-title: "Manual Approval Required"
-            issue-body: "Please approve or deny the deployment."
-      - name: Set approval to true
-        id: set-approval
-        run: echo "approval=true" >> $GITHUB_OUTPUT
+#      - name: Set default approval to false
+#        id: set-default
+#        run: echo "approval=false" >> $GITHUB_OUTPUT
+#      - name: Await manual approval
+#        uses: trstringer/manual-approval@v1
+#        with:
+#            secret: ${{ github.TOKEN }}
+#            approvers: stanoz
+#            minimum-approvals: 1
+#            issue-title: "Manual Approval Required"
+#            issue-body: "Please approve or deny the deployment."
+#      - name: Set approval to true
+#        id: set-approval
+#        run: echo "approval=true" >> $GITHUB_OUTPUT
       - name: Get code
         uses: actions/checkout@v4
       - name: Deploy process
@@ -122,7 +124,7 @@ jobs:
   docker-hub-push:
     needs:
       - deploy-app
-    if: needs.deploy-app.outputs.approval == 'true'
+#    if: needs.deploy-app.outputs.approval == 'true'
     runs-on: ubuntu-latest
     environment: test
     steps:
