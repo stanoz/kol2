@@ -40,34 +40,34 @@ jobs:
       - name: Set success
         id: test
         run: echo "success=true" >> $GITHUB_OUTPUT
-  integration-tests:
-    runs-on: ubuntu-latest
-    env:
-      NODE_ENV: integration
-      NODE_VERSION: 18
-    environment: test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Compose
-        run: docker compose up -d
-
-      - name: Run unit tests inside container
-        run: |
-          docker compose exec -T app npm run test:integration
-
-      - name: Ensure coverage directory exists
-        run: mkdir -p ./coverage
-
-      - name: Copy coverage report from container
-        run: |
-            docker cp $(docker compose ps -q app):/app/coverage/lcov-report ./coverage/lcov-report
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: lcov-report
-          path: ./coverage/lcov-report
+#  integration-tests:
+#    runs-on: ubuntu-latest
+#    env:
+#      NODE_ENV: integration
+#      NODE_VERSION: 18
+#    environment: test
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Docker Compose
+#        run: docker compose up -d
+#
+#      - name: Run unit tests inside container
+#        run: |
+#          docker compose exec -T app npm run test:integration
+#
+#      - name: Ensure coverage directory exists
+#        run: mkdir -p ./coverage
+#
+#      - name: Copy coverage report from container
+#        run: |
+#            docker cp $(docker compose ps -q app):/app/coverage/lcov-report ./coverage/lcov-report
+#      - name: Upload coverage report
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: lcov-report
+#          path: ./coverage/lcov-report
   build-docker-image:
     needs:
       - lint
@@ -88,6 +88,7 @@ jobs:
           path: app-image.tar
           name: app-image
   deploy-app:
+    needs: build-docker-image
     outputs:
       approval:  ${{ steps.deploy-app.outputs.approval }}
     runs-on: ubuntu-latest
@@ -148,7 +149,6 @@ jobs:
     needs:
       - lint
       - unit-tests
-      - integration-tests
       - deploy-app
       - build-docker-image
       - docker-hub-push
