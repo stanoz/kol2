@@ -121,7 +121,7 @@ jobs:
   docker-hub-push:
     needs:
       - deploy-app
-    if: steps.deploy-app.outputs.approval == 'true'
+    if: needs.deploy-app.outputs.approval == 'true'
     runs-on: ubuntu-latest
     environment: test
     steps:
